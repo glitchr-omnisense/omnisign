@@ -1,0 +1,27 @@
+# glitchr/omnisign with every gateway package:
+#
+#   cp .env.dist .env                                          # a provider's keys, a DocuSeal instance, when you have them
+#   docker compose run --rm omnisign gateways                  # which gateways are installed and configured, what each offers and does
+#   docker compose run --rm omnisign bare                      # plain PHP: no bundle, no container, the providers' recorded answers, and what PHP loaded
+#   docker compose run --rm omnisign bare --live               # the same against DOCUSEAL_URL, for real
+#   docker compose run --rm omnisign test                      # every package's tests
+#
+# Gateways come from GitHub (branch 1.x) unless their checkout sits under
+# OMNISIGN_PLUGINS (set it to ../.. in .env when this core sits in the
+# workspace beside them): then that checkout is what runs.
+name: omnisign-harness
+
+services:
+  omnisign:
+    build: .
+    image: glitchr/omnisign-harness
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - ..:/omnisign/core
+      - ${OMNISIGN_PLUGINS:-./plugins}:/omnisign/plugins:ro
+      - harness:/harness
+
+volumes:
+  harness:

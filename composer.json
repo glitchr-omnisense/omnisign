@@ -1,0 +1,58 @@
+{
+    "name": "glitchr/omnisign",
+    "type": "library",
+    "description": "Omnisign: one contract for having documents signed - create an envelope (documents, signers, fields, a level: simple, advanced, qualified), send it, follow it, remind, cancel, sign in the application's page, download the signed documents and their evidence, hear the provider's webhooks - whoever signs: Yousign (omnisign/yousign), DocuSign (omnisign/docusign), a DocuSeal instance (omnisign/docuseal); and its Symfony bundle.",
+    "keywords": [
+        "signature",
+        "e-signature",
+        "eidas",
+        "yousign",
+        "docusign",
+        "docuseal",
+        "omnisign"
+    ],
+    "homepage": "https://github.com/glitchr-studio/omnisign",
+    "license": "LGPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Marco Meyer",
+            "email": "marco.meyer@glitchr.io"
+        }
+    ],
+    "require": {
+        "php": ">=8.2",
+        "symfony/http-client-contracts": "^3.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0",
+        "symfony/config": "^6.4|^7.0|^8.0",
+        "symfony/dependency-injection": "^6.4|^7.0|^8.0",
+        "symfony/http-client": "^6.4|^7.0|^8.0",
+        "symfony/http-kernel": "^6.4|^7.0|^8.0"
+    },
+    "suggest": {
+        "omnisign/yousign": "Yousign (Youtrust): simple, advanced and qualified signatures, by e-mail or in the page",
+        "omnisign/docusign": "DocuSign eSignature: envelopes, embedded signing, Connect webhooks",
+        "omnisign/docuseal": "DocuSeal: an instance of one's own (open source) or DocuSeal's cloud - nothing leaves for a third party when self-hosted",
+        "symfony/config": "In a Symfony application: the configuration of Omnisign\\Bridge\\Symfony\\OmnisignBundle",
+        "symfony/dependency-injection": "In a Symfony application: the services of Omnisign\\Bridge\\Symfony\\OmnisignBundle",
+        "symfony/http-kernel": "In a Symfony application: Omnisign\\Bridge\\Symfony\\OmnisignBundle itself"
+    },
+    "autoload": {
+        "psr-4": {
+            "Omnisign\\": ""
+        },
+        "exclude-from-classmap": [
+            "/Tests/",
+            "/docker/"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Omnisign\\Tests\\": "Tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
