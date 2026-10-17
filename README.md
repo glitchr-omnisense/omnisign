@@ -1,7 +1,11 @@
-# glitchr/omnisign
+# omniscient/omnisign
 
 One contract for **having documents signed** - whoever signs: Yousign, DocuSign, or a DocuSeal
 instance of one's own.
+
+Published as `omniscient/omnisign` (formerly `glitchr/omnisign`, which this package replaces: a
+`composer.json` that still requires the old name keeps resolving to this package, never both).
+`omniscient/` is the vendor of every family's core; the providers keep theirs (`omnisign/docuseal`...).
 
 ```php
 $gateway = $registry->get('contracts');                      // or 'qualified': the same calls
@@ -48,7 +52,7 @@ template editor.
 ## Plain PHP
 
 ```sh
-composer require glitchr/omnisign omnisign/docuseal
+composer require omniscient/omnisign omnisign/docuseal
 ```
 
 ```php
@@ -81,7 +85,7 @@ docker compose run --rm omnisign test
 
 ## Responsibility
 
-`glitchr/omnisign` and its `omnisign/*` providers are independent, unofficial clients: none is
+`omniscient/omnisign` and its `omnisign/*` providers are independent, unofficial clients: none is
 affiliated with, endorsed by or sponsored by the services it reaches. Each service keeps its own
 terms (accounts and contracts, keys, rate limits), named with a link in the "Responsibility" section
 of the README of each provider that reaches one. The MIT licence covers this code only and grants no

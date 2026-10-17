@@ -1,4 +1,4 @@
-# glitchr/omnisign with every gateway package:
+# omniscient/omnisign with every gateway package:
 #
 #   cp .env.dist .env                                          # a provider's keys, a DocuSeal instance, when you have them
 #   docker compose run --rm omnisign gateways                  # which gateways are installed and configured, what each offers and does
@@ -14,7 +14,7 @@ name: omnisign-harness
 services:
   omnisign:
     build: .
-    image: glitchr/omnisign-harness
+    image: omniscient/omnisign-harness
     env_file:
       - path: .env
         required: false

@@ -6,7 +6,7 @@ order: 1
 # Installation and a first envelope
 
 ```sh
-composer require glitchr/omnisign omnisign/docuseal      # an instance of one's own: nothing leaves for a third party
+composer require omniscient/omnisign omnisign/docuseal   # an instance of one's own: nothing leaves for a third party
 composer require omnisign/yousign                        # simple, advanced, qualified
 composer require omnisign/docusign
 ```

@@ -1,5 +1,5 @@
 {
-    "name": "glitchr/omnisign",
+    "name": "omniscient/omnisign",
     "type": "library",
     "description": "Omnisign: one contract for having documents signed - create an envelope (documents, signers, fields, a level: simple, advanced, qualified), send it, follow it, remind, cancel, sign in the application's page, download the signed documents and their evidence, hear the provider's webhooks - whoever signs: Yousign (omnisign/yousign), DocuSign (omnisign/docusign), a DocuSeal instance (omnisign/docuseal); and its Symfony bundle.",
     "keywords": [
@@ -29,6 +29,9 @@
         "symfony/dependency-injection": "^6.4|^7.0|^8.0",
         "symfony/http-client": "^6.4|^7.0|^8.0",
         "symfony/http-kernel": "^6.4|^7.0|^8.0"
+    },
+    "replace": {
+        "glitchr/omnisign": "self.version"
     },
     "suggest": {
         "omnisign/yousign": "Yousign (Youtrust): simple, advanced and qualified signatures, by e-mail or in the page",
