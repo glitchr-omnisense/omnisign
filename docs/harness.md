@@ -1,6 +1,6 @@
 ---
 title: The Docker harness
-order: 5
+order: 70
 ---
 
 # The Docker harness
@@ -49,3 +49,24 @@ Classes of a framework (DependencyInjection, Config, HttpKernel, HttpFoundation,
 
 The image is `php:8.4-cli-alpine` with Composer; the harness's packages live in the `harness`
 volume of the `omnisign-harness` project.
+
+## Run on 2026-10-26
+
+`bare` with no option, run on the packages' checkouts through
+`OMNISIGN_AUTOLOAD=vendor/autoload.php php core/docker/harness/bin/bare` (PHP 8.4, no network),
+printed the lines above unchanged.
+
+## The entrypoint
+
+`docker/entrypoint.sh` runs `docker/harness/setup.php` first: it writes the harness's
+`composer.json` and `phpunit.xml` in the `harness` volume - this core from its checkout, each
+gateway from its checkout under `OMNISIGN_PLUGINS` when one is there, from
+`https://github.com/glitchr-omnisense/omnisign-<slug>.git` (branch 1.x) otherwise. Then
+`composer install` the first time, `composer update` when `composer.json` is newer than the lock,
+and the command: `test` (PHPUnit), `bare`, `composer`, `sh` or `php` as they are, anything else the
+console (`gateways` by default).
+
+`docker/harness/config/gateways.php` says which environment variables configure each gateway
+(`YOUSIGN_API_KEY`; `DOCUSIGN_INTEGRATION_KEY`, `DOCUSIGN_USER_ID`, `DOCUSIGN_PRIVATE_KEY`,
+`DOCUSIGN_ACCOUNT_ID`; `DOCUSEAL_URL`, `DOCUSEAL_API_KEY`) and the example options `bare` uses
+instead (DocuSign's private key generated for the run).

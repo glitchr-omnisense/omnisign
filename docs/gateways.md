@@ -1,6 +1,6 @@
 ---
 title: Gateways
-order: 3
+order: 30
 ---
 
 # Gateways
@@ -29,6 +29,14 @@ One contract, `Omnisign\GatewayInterface`:
 | `download` | the signed PDF (a ZIP when several), the audit trail | the combined PDF, the certificate of completion | the documents, the audit log |
 | `notify` | `X-Yousign-Signature-256` | `X-DocuSign-Signature-n` (Connect, JSON) | `X-Docuseal-Signature` |
 | Needs | an API key | an integration, an RSA key, a user's consent, an account | an instance's URL and key |
+| Reads of a `Signer` | name (split), email, phone, locale, order, authentication | name, email, order, key (as `clientUserId`, embedded); refuses an `authentication` other than none | name, email, phone, key, order, authentication, role (templates) |
+| Field types | signature, mention, text (others refused) | signature, initials, date, text, mention (as a text tab); positions or anchors | signature, initials, date, text, mention (as text); positions, no anchor |
+| `Envelope::$message` | not sent | the e-mail's blurb | the e-mail's body (subject the title) |
+| `redirectUrl` | each signer's success redirection | the signing view's return URL (when `signingUrl()` has none) | the redirection once completed |
+| `expiresAt` | the date (and its timezone) | a number of days from now | an expiry time in UTC |
+
+The details, call by call: [Envelopes](usage-envelopes.md), [signing in the page](usage-embedded.md),
+[webhooks](usage-webhooks.md), and each gateway's own manual.
 
 ## Signing in the page
 
@@ -46,4 +54,4 @@ A package `omnisign/<provider>`: a factory extending `Omnisign\GatewayFactory` t
 `Config` - its name, title, capabilities, the options it needs, its client (`omnisign.api`) and one
 action per request it answers - exactly as the three here do. Call the provider through
 `Omnisign\Http\Answer::send()`, build an upload with `Omnisign\Http\Multipart`, and leave out what
-the provider's documentation does not show.
+the provider's documentation does not show. The whole guide: [Writing a gateway](providers.md).

@@ -43,11 +43,16 @@ template editor.
 
 ## Documentation
 
+- [The manual's home](docs/index.md): what it is, the gateways
 - [Installation and a first envelope](docs/installation.md)
+- [Symfony](docs/symfony.md), [Laravel](docs/laravel.md)
+- [Concepts](docs/concepts.md): gateways, requests, actions, factories, the registry, the HTTP helpers
 - [Models](docs/models.md)
 - [Gateways: the contract, what each does, writing one](docs/gateways.md)
-- [Symfony](docs/symfony.md)
-- [The Docker harness: bare PHP, the console](docs/harness.md)
+- [Envelopes, from creation to download](docs/usage-envelopes.md), [Signing in the page](docs/usage-embedded.md), [Webhooks](docs/usage-webhooks.md)
+- [Configuration reference](docs/configuration.md), [Errors](docs/errors.md), [Testing](docs/testing.md)
+- [The Docker harness: bare PHP, the console](docs/harness.md), [Writing a gateway](docs/providers.md)
+- [Verified, and not](docs/verified.md)
 
 ## Plain PHP
 

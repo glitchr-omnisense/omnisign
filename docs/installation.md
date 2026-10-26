@@ -1,6 +1,6 @@
 ---
 title: Installation
-order: 1
+order: 10
 ---
 
 # Installation and a first envelope
@@ -11,12 +11,21 @@ composer require omnisign/yousign                        # simple, advanced, qua
 composer require omnisign/docusign
 ```
 
-PHP 8.2 or later.
+## Requirements
 
-Omnisign needs no framework. The core requires PHP and `symfony/http-client-contracts`; each
-gateway requires `symfony/http-client` (a library) and takes the application's client when it is
-given one. It runs the same in plain PHP, in a worker, in Laravel or Slim, and in Symfony, where a
-bundle does the wiring ([Symfony](symfony.md)).
+- PHP 8.2 or later, with `mbstring` (titles and error messages are cut with `mb_substr()`).
+- `omnisense/omnisign` requires `symfony/http-client-contracts` (^3.0) and nothing else.
+- Each gateway requires `omnisense/omnisign` and `symfony/http-client` (6.4, 7 or 8), and takes the
+  application's client when it is given one; `omnisign/docusign` also requires `ext-openssl` (it
+  signs its JWT with an RSA key).
+- For the Symfony bundle: `symfony/config`, `symfony/dependency-injection`, `symfony/http-kernel`
+  (6.4, 7 or 8), suggested, not required.
+
+> [!WARNING]
+> Known defect: `composer.json` does not require `ext-mbstring`, where `Http\Answer` and the gateways call `mb_substr()`: on a PHP built without it, an error answer is a fatal error.
+
+Omnisign runs the same in plain PHP, in a worker, in Laravel or Slim, and in Symfony, where a bundle
+does the wiring ([Symfony](symfony.md)).
 
 ## Plain PHP
 
@@ -62,7 +71,8 @@ evidence: audit-log.pdf, 54542 bytes
 ```
 
 (2026-10-08, against a DocuSeal instance of the open-source edition run in Docker; the tenant's
-part done through DocuSeal's API)
+part done through DocuSeal's API. Not run again for this manual: no instance was running on
+2026-10-26; the same calls on the recorded answers are in [Envelopes](usage-envelopes.md).)
 
 That is all there is to it:
 
@@ -86,7 +96,18 @@ its own (`Tests/BareTest.php`), and so does `docker compose run --rm omnisign ba
 5. Once `COMPLETED`, **download** the signed documents and their evidence, and store them: the
    provider is not the archive.
 
+## In a framework
+
+- **Symfony**: `Omnisign\Bridge\Symfony\OmnisignBundle` registers the gateway factories on the
+  application's `http_client`, builds the registry from `config/packages/omnisign.yaml` and makes
+  each gateway injectable by its name: [Symfony](symfony.md).
+- **Laravel**: there is no bridge package; a service provider builds the registry once:
+  [Laravel](laravel.md).
+- **Any other**: build the `Registry` once, where the framework builds its services.
+
 ## Errors
+
+The whole list, and what each gateway maps to which: [Errors](errors.md).
 
 | Exception | When |
 |---|---|
