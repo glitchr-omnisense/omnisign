@@ -1,5 +1,5 @@
 {
-    "name": "omniscient/omnisign",
+    "name": "omnisense/omnisign",
     "type": "library",
     "description": "Omnisign: one contract for having documents signed - create an envelope (documents, signers, fields, a level: simple, advanced, qualified), send it, follow it, remind, cancel, sign in the application's page, download the signed documents and their evidence, hear the provider's webhooks - whoever signs: Yousign (omnisign/yousign), DocuSign (omnisign/docusign), a DocuSeal instance (omnisign/docuseal); and its Symfony bundle.",
     "keywords": [
@@ -11,7 +11,7 @@
         "docuseal",
         "omnisign"
     ],
-    "homepage": "https://github.com/glitchr-studio/omnisign",
+    "homepage": "https://github.com/glitchr-omnisense/omnisign",
     "license": "MIT",
     "authors": [
         {
@@ -31,6 +31,7 @@
         "symfony/http-kernel": "^6.4|^7.0|^8.0"
     },
     "replace": {
+        "omniscient/omnisign": "self.version",
         "glitchr/omnisign": "self.version"
     },
     "suggest": {

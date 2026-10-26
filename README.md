@@ -1,11 +1,11 @@
-# omniscient/omnisign
+# omnisense/omnisign
 
 One contract for **having documents signed** - whoever signs: Yousign, DocuSign, or a DocuSeal
 instance of one's own.
 
-Published as `omniscient/omnisign` (formerly `glitchr/omnisign`, which this package replaces: a
+Published as `omnisense/omnisign` (formerly `glitchr/omnisign`, which this package replaces: a
 `composer.json` that still requires the old name keeps resolving to this package, never both).
-`omniscient/` is the vendor of every family's core; the providers keep theirs (`omnisign/docuseal`...).
+`omnisense/` is the vendor of every family's core; the providers keep theirs (`omnisign/docuseal`...).
 
 ```php
 $gateway = $registry->get('contracts');                      // or 'qualified': the same calls
@@ -26,9 +26,9 @@ and `symfony/http-client-contracts`. Each gateway is a package of its own:
 
 | Package | Levels | In the page | Third party |
 |---|---|---|---|
-| [`omnisign/yousign`](https://github.com/glitchr-studio/omnisign-yousign) | simple, advanced, qualified | yes | Yousign (Youtrust) |
-| [`omnisign/docusign`](https://github.com/glitchr-studio/omnisign-docusign) | simple | yes | DocuSign |
-| [`omnisign/docuseal`](https://github.com/glitchr-studio/omnisign-docuseal) | simple | yes | none when self-hosted |
+| [`omnisign/yousign`](https://github.com/glitchr-omnisense/omnisign-yousign) | simple, advanced, qualified | yes | Yousign (Youtrust) |
+| [`omnisign/docusign`](https://github.com/glitchr-omnisense/omnisign-docusign) | simple | yes | DocuSign |
+| [`omnisign/docuseal`](https://github.com/glitchr-omnisense/omnisign-docuseal) | simple | yes | none when self-hosted |
 
 ## What a gateway is, and is not
 
@@ -52,7 +52,7 @@ template editor.
 ## Plain PHP
 
 ```sh
-composer require omniscient/omnisign omnisign/docuseal
+composer require omnisense/omnisign omnisign/docuseal
 ```
 
 ```php
@@ -85,7 +85,7 @@ docker compose run --rm omnisign test
 
 ## Responsibility
 
-`omniscient/omnisign` and its `omnisign/*` providers are independent, unofficial clients: none is
+`omnisense/omnisign` and its `omnisign/*` providers are independent, unofficial clients: none is
 affiliated with, endorsed by or sponsored by the services it reaches. Each service keeps its own
 terms (accounts and contracts, keys, rate limits), named with a link in the "Responsibility" section
 of the README of each provider that reaches one. The MIT licence covers this code only and grants no
