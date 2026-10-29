@@ -58,3 +58,13 @@ try {
 
 A signer who declines, or an envelope that expires, is not an exception: it is a status
 (`DECLINED`, `EXPIRED`) of a later `fetch()` or a webhook.
+
+## No secret in a failure
+
+`Answer::send()` keeps the request's secrets out of what it throws. The HTTP client's message
+quotes the URL called: its key parameters, a password in its user part and every secret of the
+request's options are masked (`api_key=***`, `Http\Redaction::text()`). The previous exception is
+a copy of the client's (`Redaction::copy()`: the same class and code, that message, its own
+previous copied the same way), and no trace of the chain keeps its arguments, where the query,
+headers and body stood: a log that writes the whole chain, arguments included
+(`zend.exception_ignore_args` off), holds no key.
