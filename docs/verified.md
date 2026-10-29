@@ -33,8 +33,8 @@ from the packages' fixtures through the harness's `recorded.php`.
   providers' documented shapes.
 - The [Laravel](laravel.md) page was written from the registry's API; it was not run in a Laravel
   application.
-- The known defect found while writing these pages: `ext-mbstring` not required though
-  `mb_substr()` is called ([Installation](installation.md#requirements)).
+- The known defect found while writing these pages, fixed since: `ext-mbstring` not required though
+  `mb_substr()` is called (composer.json requires it).
 
 ## Responsibility
 
