@@ -2,6 +2,9 @@
 
 namespace Omnisign\Model;
 
+use Omnisense\Contracts\Policy\UsagePolicy;
+use Omnisense\Contracts\Provider\CapabilitiesInterface;
+
 /**
  * What a gateway's signatures are, said before anything is sent: the
  * levels it offers, whether a signer may sign in the application's page,
@@ -12,8 +15,13 @@ namespace Omnisign\Model;
  * identity-check, tenant-file), what its identity verifications read
  * ($identityDocuments, $selfie, $liveness) and the provider's own rules
  * ($terms). A gateway built before 1.1 keeps the signature only.
+ *
+ * Its usage policy (policy()) is omnisense/contracts' UsagePolicy: given
+ * ($policy, read from the provider's policy.json), or made of $terms
+ * (Terms::policy()), or nothing known. $terms stays: given, or read from the
+ * policy when only the policy is given (Terms::fromPolicy()).
  */
-final readonly class Capabilities
+final readonly class Capabilities implements CapabilitiesInterface
 {
     /** Having documents signed: envelopes (GatewayInterface). */
     public const SIGNATURE = 'signature';
@@ -22,12 +30,17 @@ final readonly class Capabilities
     /** A rental applicant's file, through a consented connect flow (TenantFileInterface). */
     public const TENANT_FILE = 'tenant-file';
 
+    /** The provider's own rules, in words: given, or read from the policy. */
+    public ?Terms $terms;
+
     /**
      * @param list<Level>        $levels
      * @param list<string>       $contracts         the family's contracts it keeps: SIGNATURE, IDENTITY_CHECK, TENANT_FILE
      * @param list<DocumentType> $identityDocuments the identity documents its verifications read
      * @param bool               $selfie            its verifications match a selfie against the document
      * @param bool               $liveness          its verifications check that a live person is there
+     * @param Terms|null         $terms             the provider's own rules, in words; read from $policy when null and it is given
+     * @param UsagePolicy|null   $policy            its usage policy; made of $terms when null
      */
     public function __construct(
         public array $levels = [Level::SIMPLE],
@@ -41,8 +54,22 @@ final readonly class Capabilities
         public array $identityDocuments = [],
         public bool $selfie = false,
         public bool $liveness = false,
-        public ?Terms $terms = null,
+        ?Terms $terms = null,
+        private ?UsagePolicy $policy = null,
     ) {
+        $this->terms = $terms ?? (null === $policy ? null : Terms::fromPolicy($policy));
+    }
+
+    /** Its usage policy as the provider declares it (a site's tightening is the registry's: Registry::policy()). */
+    public function policy(): UsagePolicy
+    {
+        return $this->policy ?? $this->terms?->policy() ?? UsagePolicy::described(UsagePolicy::UNNAMED);
+    }
+
+    /** @return list<string> the family's contracts it keeps (the $contracts field, for omnisense/contracts' interface) */
+    public function contracts(): array
+    {
+        return $this->contracts;
     }
 
     /** Whether it keeps one of the family's contracts: SIGNATURE, IDENTITY_CHECK, TENANT_FILE. */
@@ -72,6 +99,7 @@ final readonly class Capabilities
             'contracts' => $this->contracts,
             'selfie' => $this->selfie,
             'liveness' => $this->liveness,
+            'policy' => $this->policy()->toArray(),
         ];
     }
 }

@@ -53,6 +53,7 @@ template editor.
 - [Identity checks](docs/usage-identity.md) and [tenant files](docs/usage-tenant-files.md) (since 1.1), with what a site must not keep
 - [Configuration reference](docs/configuration.md), [Errors](docs/errors.md), [Testing](docs/testing.md)
 - [The Docker harness: bare PHP, the console](docs/harness.md), [Writing a gateway](docs/providers.md)
+- [Usage policies](docs/policies.md): each provider's limits and rights, the guard, a site's tightening (omnisense/contracts)
 - [Verified, and not](docs/verified.md)
 
 ## Plain PHP
@@ -94,7 +95,8 @@ docker compose run --rm omnisign test
 `omnisense/omnisign` and its `omnisign/*` providers are independent, unofficial clients: none is
 affiliated with, endorsed by or sponsored by the services it reaches. Each service keeps its own
 terms (accounts and contracts, keys, rate limits), named with a link in the "Responsibility" section
-of the README of each provider that reaches one. The MIT licence covers this code only and grants no
+of the README of each provider that reaches one, and declared in its `policy.json`
+([usage policies](docs/policies.md)). The MIT licence covers this code only and grants no
 right to any service or to its data.
 
 Whoever installs and runs these packages is responsible for complying with those terms, for

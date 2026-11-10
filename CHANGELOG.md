@@ -21,10 +21,34 @@
   `omnisign/dossierfacile` when installed, and aliases each gateway as `IdentityCheckInterface $name`
   and `TenantFileInterface $name`.
 - The harness: both providers, the bare script verifies an identity and obtains a tenant file
-  through them; `phpstan` runs PHPStan at level max (`phpstan.neon`; the baseline holds the 79
-  findings of the code before 1.1, none of the new code).
+  through them; `phpstan` runs PHPStan at level max (`phpstan.neon`; its baseline, empty since: see
+  Changed).
 - Docs: [Identity checks](docs/usage-identity.md), [Tenant files](docs/usage-tenant-files.md), with
   what a site may keep and must not.
+- The family on [omnisense/contracts](https://github.com/glitchr-omnisense/contracts), the kernel
+  every omni family builds on, with usage policies. `Config`, `GatewayFactory`, `Registry` and
+  `Http\Redaction` keep their names and API over the kernel's (prefix `omnisign`, the family's
+  exceptions and messages); `GatewayInterface` and `GatewayFactoryInterface` extend its provider
+  contracts; `OmnisignException` extends its `ExceptionInterface`.
+- `Capabilities::policy()` (given as `policy:`, or made of `$terms` through `Terms::policy()`),
+  `contracts()`; `$terms` read from a policy given alone (`Terms::fromPolicy()`); `toArray()` gives
+  `policy`.
+- Every request a gateway sends its provider passes its `PolicyGuard` (`Gateway::guard()`, the
+  operation named after the typed method; webhooks and the consent page's address not counted):
+  `UsageLimitReachedException` with `retryAfter`. `Http\Answer::send()` takes the provider's
+  `Backoff`: a 429 and its `Retry-After` hold the next calls. `Registry` takes `policy` and `usage`
+  per gateway and a shared limiter as its third argument; `guard()`, `policy()`, `policies()`. The
+  bundle takes `policy` and `usage` beside `options`. [Usage policies](docs/policies.md).
+- The harness installs omnisense/contracts from `OMNISENSE_CONTRACTS` (or GitHub) and runs its
+  tests; it names its entrypoint and runs on the default bridge.
+
+### Changed
+
+- PHPStan at level max with an empty baseline: the 79 findings of the code before 1.1 are fixed.
+  `Gateway`'s envelope methods (`create()` ... `notify()`) throw the gateway's `ProviderException`
+  where an action answered no model, rather than returning null from a method typed not to.
+- A provider's 429 is a `UsageLimitReachedException` (an `OmnisignException`), no longer an
+  `UnreachableException`, when its gateway was built by its factory (every `omnisign/*` provider).
 
 ### Fixed
 

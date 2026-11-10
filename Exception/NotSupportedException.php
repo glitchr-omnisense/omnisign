@@ -9,7 +9,7 @@ use Omnisign\Request\Request;
  * no envelope built from a PDF on DocuSeal's free edition. supports() says
  * so beforehand.
  */
-final class NotSupportedException extends \LogicException implements OmnisignException
+final class NotSupportedException extends \Omnisense\Contracts\Exception\NotSupportedException implements OmnisignException
 {
     public static function for(Request $request, string $gateway): self
     {

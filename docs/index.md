@@ -91,4 +91,5 @@ Yousign and DocuSign were not ([Verified, and not](verified.md)).
 - [Testing](testing.md): testing an application that uses Omnisign.
 - [The Docker harness](harness.md): every gateway installed, the bare script.
 - [Writing a gateway](providers.md).
+- [Usage policies](policies.md): each provider's limits and rights, the guard, a site's tightening.
 - [Verified, and not](verified.md).

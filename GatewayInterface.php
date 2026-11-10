@@ -8,6 +8,7 @@ use Omnisign\Model\Envelope;
 use Omnisign\Model\Notification;
 use Omnisign\Model\SigningUrl;
 use Omnisign\Request\Request;
+use Omnisense\Contracts\Provider\ProviderInterface;
 
 /**
  * One way to have documents signed, configured - a signature service, an
@@ -19,8 +20,11 @@ use Omnisign\Request\Request;
  * A gateway has documents signed. It keeps nothing for the application -
  * neither the documents nor their proof: the application stores what
  * download() gives it, in its own vault.
+ *
+ * It is omnisense/contracts' provider: its Capabilities carry its usage
+ * policy (Capabilities::policy()).
  */
-interface GatewayInterface
+interface GatewayInterface extends ProviderInterface
 {
     public function getName(): string;
 
