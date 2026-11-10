@@ -30,7 +30,7 @@ final class StubFactory extends GatewayFactory
             'omnisign.required_options' => ['host'],
             'silent' => false,
             'omnisign.capabilities' => new Capabilities(embedded: true),
-            'omnisign.api' => static fn (Config $c) => new StubApi((string) $c['host']),
+            'omnisign.api' => static fn (Config $c) => new StubApi(\is_string($host = $c['host']) ? $host : ''),
             'omnisign.action.create' => new StubAction(Create::class),
             'omnisign.action.send' => new StubAction(Send::class),
             'omnisign.action.fetch' => static fn (Config $c) => $c['silent'] ? null : new StubAction(Fetch::class),

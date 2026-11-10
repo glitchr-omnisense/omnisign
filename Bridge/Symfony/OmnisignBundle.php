@@ -80,7 +80,7 @@ final class OmnisignBundle extends AbstractBundle
 
         $services = $container->services();
         foreach (self::FACTORIES as $factory) {
-            if (class_exists($factory) && is_subclass_of($factory, GatewayFactoryInterface::class)) {
+            if (class_exists($factory)) {
                 $definition = $services->set($factory)->autowire()->tag('omnisign.gateway_factory');
                 foreach ((new \ReflectionClass($factory))->getConstructor()?->getParameters() ?? [] as $parameter) {
                     if ('http' === $parameter->getName()) {

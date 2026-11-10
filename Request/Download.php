@@ -13,6 +13,8 @@ final class Download extends Request
 
     public function getDownload(): ?\Omnisign\Model\Download
     {
-        return $this->getResult();
+        $result = $this->getResult();
+
+        return $result instanceof \Omnisign\Model\Download ? $result : null;
     }
 }

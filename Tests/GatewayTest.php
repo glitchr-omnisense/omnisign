@@ -31,9 +31,9 @@ final class GatewayTest extends TestCase
         $gateway = $registry->get('contracts');
         $created = $gateway->create(new Envelope('Bail', signers: [new Signer('tenant', 'Camille Érable', 'camille@erable.example')]));
 
-        self::assertSame([Status::DRAFT, 'r-tenant'], [$created->status, $created->state('tenant')->reference]);
+        self::assertSame([Status::DRAFT, 'r-tenant'], [$created->status, $created->state('tenant')?->reference]);
         $sent = $gateway->send($created);
-        self::assertSame([Status::SENT, SignerStatus::NOTIFIED], [$sent->status, $sent->state('tenant')->status]);
+        self::assertSame([Status::SENT, SignerStatus::NOTIFIED], [$sent->status, $sent->state('tenant')?->status]);
         self::assertSame(Status::SENT, $gateway->fetch($created)->status);
         self::assertSame($registry->get('contracts'), $gateway, 'built once');
     }

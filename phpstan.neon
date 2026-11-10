@@ -1,6 +1,5 @@
-# PHPStan at the highest level, as glitchr-studio/ci's workflow runs it. The baseline holds the 79
-# findings of the code written before 1.1 (taken on 2026-11-10, before the identity-check and
-# tenant-file contracts) and nothing else: anything new PHPStan reports fails. It shrinks, never grows.
+# PHPStan at the highest level, as glitchr-studio/ci's workflow runs it. The baseline is empty: the 79
+# findings of the code written before 1.1 were fixed on 2026-11-10. Anything PHPStan reports fails.
 includes:
     - phpstan-baseline.neon
 

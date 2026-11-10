@@ -63,6 +63,15 @@ final readonly class Capabilities
             'levels' => array_map(static fn (Level $l) => $l->value, $this->levels),
             'identityDocuments' => array_map(static fn (DocumentType $d) => $d->value, $this->identityDocuments),
             'terms' => $this->terms?->toArray(),
-        ] + get_object_vars($this);
+            'embedded' => $this->embedded,
+            'ordered' => $this->ordered,
+            'identityCheck' => $this->identityCheck,
+            'thirdParty' => $this->thirdParty,
+            'documents' => $this->documents,
+            'templates' => $this->templates,
+            'contracts' => $this->contracts,
+            'selfie' => $this->selfie,
+            'liveness' => $this->liveness,
+        ];
     }
 }

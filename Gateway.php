@@ -77,42 +77,42 @@ final class Gateway implements GatewayInterface, IdentityCheckInterface, TenantF
 
     public function create(Envelope $envelope): Envelope
     {
-        return $this->execute(new Request\Create($envelope))->getEnvelope();
+        return $this->execute(new Request\Create($envelope))->getEnvelope() ?? throw new ProviderException($this->name, 'No envelope answered.');
     }
 
     public function send(Envelope $envelope): Envelope
     {
-        return $this->execute(new Request\Send($envelope))->getEnvelope();
+        return $this->execute(new Request\Send($envelope))->getEnvelope() ?? throw new ProviderException($this->name, 'No envelope answered.');
     }
 
     public function fetch(Envelope $envelope): Envelope
     {
-        return $this->execute(new Request\Fetch($envelope))->getEnvelope();
+        return $this->execute(new Request\Fetch($envelope))->getEnvelope() ?? throw new ProviderException($this->name, 'No envelope answered.');
     }
 
     public function remind(Envelope $envelope, ?string $signer = null): Envelope
     {
-        return $this->execute(new Request\Remind($envelope, $signer))->getEnvelope();
+        return $this->execute(new Request\Remind($envelope, $signer))->getEnvelope() ?? throw new ProviderException($this->name, 'No envelope answered.');
     }
 
     public function cancel(Envelope $envelope, ?string $reason = null): Envelope
     {
-        return $this->execute(new Request\Cancel($envelope, $reason))->getEnvelope();
+        return $this->execute(new Request\Cancel($envelope, $reason))->getEnvelope() ?? throw new ProviderException($this->name, 'No envelope answered.');
     }
 
     public function download(Envelope $envelope): Download
     {
-        return $this->execute(new Request\Download($envelope))->getDownload();
+        return $this->execute(new Request\Download($envelope))->getDownload() ?? throw new ProviderException($this->name, 'No download answered.');
     }
 
     public function signingUrl(Envelope $envelope, string $signer, ?string $returnUrl = null): SigningUrl
     {
-        return $this->execute(new Request\SigningUrl($envelope, $signer, $returnUrl))->getSigningUrl();
+        return $this->execute(new Request\SigningUrl($envelope, $signer, $returnUrl))->getSigningUrl() ?? throw new ProviderException($this->name, 'No signing URL answered.');
     }
 
     public function notify(string $body, array $headers = []): Notification
     {
-        return $this->execute(new Request\Notify($body, $headers))->getNotification();
+        return $this->execute(new Request\Notify($body, $headers))->getNotification() ?? throw new ProviderException($this->name, 'No notification answered.');
     }
 
     public function startVerification(Verification $verification): Verification

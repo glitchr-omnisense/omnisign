@@ -13,6 +13,8 @@ final class Create extends Request
 
     public function getEnvelope(): ?Envelope
     {
-        return $this->getResult();
+        $result = $this->getResult();
+
+        return $result instanceof Envelope ? $result : null;
     }
 }

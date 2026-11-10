@@ -13,6 +13,8 @@ final class SigningUrl extends Request
 
     public function getSigningUrl(): ?\Omnisign\Model\SigningUrl
     {
-        return $this->getResult();
+        $result = $this->getResult();
+
+        return $result instanceof \Omnisign\Model\SigningUrl ? $result : null;
     }
 }
