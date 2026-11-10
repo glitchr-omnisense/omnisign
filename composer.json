@@ -1,7 +1,7 @@
 {
     "name": "omnisense/omnisign",
     "type": "library",
-    "description": "Omnisign: one contract for having documents signed - create an envelope (documents, signers, fields, a level: simple, advanced, qualified), send it, follow it, remind, cancel, sign in the application's page, download the signed documents and their evidence, hear the provider's webhooks - whoever signs: Yousign (omnisign/yousign), DocuSign (omnisign/docusign), a DocuSeal instance (omnisign/docuseal); and its Symfony bundle.",
+    "description": "Omnisign: one contract for having documents signed - create an envelope (documents, signers, fields, a level: simple, advanced, qualified), send it, follow it, remind, cancel, sign in the application's page, download the signed documents and their evidence, hear the provider's webhooks - whoever signs: Yousign (omnisign/yousign), DocuSign (omnisign/docusign), a DocuSeal instance (omnisign/docuseal) - and, since 1.1, verify an identity (a document and a selfie, the checks performed: Stripe Identity, omnisign/stripe-identity) and obtain a rental applicant's file through a consented connect flow (DossierFacile, omnisign/dossierfacile); and its Symfony bundle.",
     "keywords": [
         "signature",
         "e-signature",
@@ -9,6 +9,11 @@
         "yousign",
         "docusign",
         "docuseal",
+        "identity-verification",
+        "kyc",
+        "tenant-file",
+        "dossierfacile",
+        "stripe-identity",
         "omnisign"
     ],
     "homepage": "https://github.com/glitchr-omnisense/omnisign",
@@ -39,6 +44,8 @@
         "omnisign/yousign": "Yousign (Youtrust): simple, advanced and qualified signatures, by e-mail or in the page",
         "omnisign/docusign": "DocuSign eSignature: envelopes, embedded signing, Connect webhooks",
         "omnisign/docuseal": "DocuSeal: an instance of one's own (open source) or DocuSeal's cloud - nothing leaves for a third party when self-hosted",
+        "omnisign/stripe-identity": "Stripe Identity: an identity document and a selfie, the checks performed (identity-check)",
+        "omnisign/dossierfacile": "DossierFacile Connect: a rental applicant's file, shared with their consent (tenant-file; partners under DossierFacile's charter)",
         "symfony/config": "In a Symfony application: the configuration of Omnisign\\Bridge\\Symfony\\OmnisignBundle",
         "symfony/dependency-injection": "In a Symfony application: the services of Omnisign\\Bridge\\Symfony\\OmnisignBundle",
         "symfony/http-kernel": "In a Symfony application: Omnisign\\Bridge\\Symfony\\OmnisignBundle itself"

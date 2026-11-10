@@ -48,6 +48,7 @@ $composer = [
         'symfony/http-client' => '^7.0|^8.0',
     ],
     'require-dev' => [
+        'phpstan/phpstan' => '^2.1',
         'phpunit/phpunit' => '^11.0',
         'symfony/config' => '^7.0|^8.0',
         'symfony/dependency-injection' => '^7.0|^8.0',

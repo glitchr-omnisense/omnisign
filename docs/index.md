@@ -46,6 +46,13 @@ and never installs two. The namespace is `Omnisign\`; the gateways keep the `omn
 It is not a signature service itself, and not an archive: it does not seal documents, keep evidence,
 or store anything.
 
+Since 1.1 the family carries two more contracts, for two more trust services the same providers
+offer: **identity checks** (`IdentityCheckInterface`: a document and a selfie, the checks performed
+- `omnisign/stripe-identity`; [Identity checks](usage-identity.md)) and **tenant files**
+(`TenantFileInterface`: a rental applicant's file through a consented connect flow -
+`omnisign/dossierfacile`; [Tenant files](usage-tenant-files.md)). `Capabilities::$contracts` says
+which a gateway keeps; the signature's contract is unchanged.
+
 ## Gateways
 
 Three packages. The operations are what each gateway's `supports()` answers with its required
@@ -58,6 +65,14 @@ factory's `capabilities()`.
 | [`omnisign/docusign`](https://github.com/glitchr-omnisense/omnisign-docusign) | `docusign` | simple | yes | yes | yes (a draft) | yes | yes | yes | yes | yes | yes (embedded only) | with `hmac_keys` |
 | [`omnisign/docuseal`](https://github.com/glitchr-omnisense/omnisign-docuseal) | `docuseal` | simple | yes | no for an instance of one's own, yes for DocuSeal's cloud | yes (sent at once) | yes (reads it back) | yes | yes | yes | yes | yes | with `webhook_secret` |
 
+Identity checks and tenant files:
+
+| Package | Factory name | Contract | Operations | Terms |
+|---|---|---|---|---|
+| [`omnisign/stripe-identity`](https://github.com/glitchr-omnisense/omnisign-stripe-identity) | `stripe-identity` | identity-check | start, fetch, result, cancel, redact; notify with `webhook_secret` | EUR 1.25 a check, banned uses, redact once done |
+| [`omnisign/dossierfacile`](https://github.com/glitchr-omnisense/omnisign-dossierfacile) | `dossierfacile` | tenant-file | connect URL, connect, fetch; notify with `callback_api_key` | partners under the charter, free, three months at most |
+| `omnisign/veriff`, `omnisign/entrust` | reserved | identity-check | | |
+
 DocuSeal alone was run against a real service (an instance of its open-source edition, in Docker);
 Yousign and DocuSign were not ([Verified, and not](verified.md)).
 
@@ -69,7 +84,8 @@ Yousign and DocuSign were not ([Verified, and not](verified.md)).
 - [Models](models.md): envelopes, documents, signers, fields, states, every field.
 - [Gateways](gateways.md): the contract and what each gateway does with it.
 - Usage: [envelopes, from creation to download](usage-envelopes.md),
-  [signing in the page](usage-embedded.md), [webhooks](usage-webhooks.md).
+  [signing in the page](usage-embedded.md), [webhooks](usage-webhooks.md),
+  [identity checks](usage-identity.md), [tenant files](usage-tenant-files.md).
 - [Configuration reference](configuration.md): every option of every factory.
 - [Errors](errors.md): the exceptions and when each is thrown.
 - [Testing](testing.md): testing an application that uses Omnisign.

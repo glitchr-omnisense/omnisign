@@ -50,6 +50,7 @@ template editor.
 - [Models](docs/models.md)
 - [Gateways: the contract, what each does, writing one](docs/gateways.md)
 - [Envelopes, from creation to download](docs/usage-envelopes.md), [Signing in the page](docs/usage-embedded.md), [Webhooks](docs/usage-webhooks.md)
+- [Identity checks](docs/usage-identity.md) and [tenant files](docs/usage-tenant-files.md) (since 1.1), with what a site must not keep
 - [Configuration reference](docs/configuration.md), [Errors](docs/errors.md), [Testing](docs/testing.md)
 - [The Docker harness: bare PHP, the console](docs/harness.md), [Writing a gateway](docs/providers.md)
 - [Verified, and not](docs/verified.md)

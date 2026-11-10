@@ -4,10 +4,14 @@ namespace Omnisign\Bridge\Symfony;
 
 use Omnisign\Docusign\DocusignGatewayFactory;
 use Omnisign\Docuseal\DocusealGatewayFactory;
+use Omnisign\Dossierfacile\DossierfacileGatewayFactory;
+use Omnisign\StripeIdentity\StripeIdentityGatewayFactory;
 use Omnisign\Yousign\YousignGatewayFactory;
 use Omnisign\GatewayFactoryInterface;
 use Omnisign\GatewayInterface;
+use Omnisign\IdentityCheckInterface;
 use Omnisign\Registry;
+use Omnisign\TenantFileInterface;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -18,7 +22,8 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_it
 
 /**
  * Omnisign in a Symfony application: the gateway packages installed
- * (omnisign/yousign, omnisign/docusign, omnisign/docuseal) registered, the
+ * (omnisign/yousign, omnisign/docusign, omnisign/docuseal,
+ * omnisign/stripe-identity, omnisign/dossierfacile) registered, the
  * gateways built from configuration and injectable by their name:
  *
  *     omnisign:
@@ -32,6 +37,12 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_it
  *
  *     public function __construct(GatewayInterface $contracts, GatewayInterface $qualified) {}
  *
+ * A gateway that verifies identities (omnisign/stripe-identity) or gives
+ * tenant files (omnisign/dossierfacile) is injectable by its contract too,
+ * built through Registry::identity() / tenantFiles():
+ *
+ *     public function __construct(IdentityCheckInterface $kyc, TenantFileInterface $dossierfacile) {}
+ *
  * Nothing is built, nor checked, when the container compiles: a gateway is
  * built the first time it is asked for, and an option left empty only shows
  * then (InvalidConfigException). A factory is autowired, the application's
@@ -43,7 +54,7 @@ final class OmnisignBundle extends AbstractBundle
     protected string $extensionAlias = 'omnisign';
 
     /** The gateway packages this bundle knows, registered when installed. */
-    private const FACTORIES = [YousignGatewayFactory::class, DocusignGatewayFactory::class, DocusealGatewayFactory::class];
+    private const FACTORIES = [YousignGatewayFactory::class, DocusignGatewayFactory::class, DocusealGatewayFactory::class, StripeIdentityGatewayFactory::class, DossierfacileGatewayFactory::class];
 
     public function configure(DefinitionConfigurator $definition): void
     {
@@ -87,6 +98,10 @@ final class OmnisignBundle extends AbstractBundle
             $id = 'omnisign.gateway.'.$name;
             $services->set($id, GatewayInterface::class)->factory([service(Registry::class), 'get'])->args([$name]);
             $builder->registerAliasForArgument($id, GatewayInterface::class, $name);
+            $services->set('omnisign.identity.'.$name, IdentityCheckInterface::class)->factory([service(Registry::class), 'identity'])->args([$name]);
+            $builder->registerAliasForArgument('omnisign.identity.'.$name, IdentityCheckInterface::class, $name);
+            $services->set('omnisign.tenant_file.'.$name, TenantFileInterface::class)->factory([service(Registry::class), 'tenantFiles'])->args([$name]);
+            $builder->registerAliasForArgument('omnisign.tenant_file.'.$name, TenantFileInterface::class, $name);
         }
     }
 }

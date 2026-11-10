@@ -30,4 +30,16 @@ return [
         'options' => ['url' => $env('DOCUSEAL_URL'), 'api_key' => $env('DOCUSEAL_API_KEY')],
         'example' => ['url' => 'http://localhost:13300/api', 'api_key' => 'example'],
     ],
+    'stripe-identity' => [
+        'factory' => 'stripe-identity',
+        'needs' => ['STRIPE_IDENTITY_SECRET_KEY'],
+        'options' => ['secret_key' => $env('STRIPE_IDENTITY_SECRET_KEY'), 'webhook_secret' => $env('STRIPE_IDENTITY_WEBHOOK_SECRET')],
+        'example' => ['secret_key' => 'sk_test_example'],
+    ],
+    'dossierfacile' => [
+        'factory' => 'dossierfacile',
+        'needs' => ['DOSSIERFACILE_CLIENT_ID', 'DOSSIERFACILE_CLIENT_SECRET'],
+        'options' => ['client_id' => $env('DOSSIERFACILE_CLIENT_ID'), 'client_secret' => $env('DOSSIERFACILE_CLIENT_SECRET'), 'callback_api_key' => $env('DOSSIERFACILE_CALLBACK_API_KEY'), 'preprod' => $env('DOSSIERFACILE_PREPROD', '1')],
+        'example' => ['client_id' => 'example', 'client_secret' => 'example', 'preprod' => true],
+    ],
 ];

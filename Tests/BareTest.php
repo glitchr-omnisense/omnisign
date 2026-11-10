@@ -67,6 +67,52 @@ final class BareTest extends TestCase
         }
     }
 
+    public function testAnIdentityIsVerifiedThroughEachGatewayThatVerifiesIdentities(): void
+    {
+        $report = self::report();
+        if (null === self::at($report, 'gateways', 'stripe-identity')) {
+            self::markTestSkipped('omnisign/stripe-identity is not installed.');
+        }
+
+        self::assertSame(['vs_1NuN4zLkdIwHu7ixleE6HvkI', 'pending', true], self::at($report, 'identity', 'stripe-identity', 'started'));
+        self::assertSame('verified', self::at($report, 'identity', 'stripe-identity', 'fetched'));
+        self::assertSame(['verified', [['document', true], ['selfie', true]], 'id_card', false], self::at($report, 'identity', 'stripe-identity', 'result'));
+        self::assertNull(self::at($report, 'runs', 'stripe-identity'), 'it signs nothing');
+        self::assertSame(['identity-check'], self::at($report, 'gateways', 'stripe-identity', 'contracts'));
+    }
+
+    public function testATenantFileIsObtainedThroughEachGatewayThatGivesThem(): void
+    {
+        $report = self::report();
+        if (null === self::at($report, 'gateways', 'dossierfacile')) {
+            self::markTestSkipped('omnisign/dossierfacile is not installed.');
+        }
+
+        self::assertSame('sso-preprod.dossierfacile.fr', self::at($report, 'tenant_files', 'dossierfacile', 'connect_url'));
+        self::assertSame(['8080', 'validated', 1, 1, 4000], self::at($report, 'tenant_files', 'dossierfacile', 'file'));
+        self::assertNotNull(self::at($report, 'tenant_files', 'dossierfacile', 'kept_until'));
+        self::assertSame('to_process', self::at($report, 'tenant_files', 'dossierfacile', 'fetched'));
+        self::assertSame('P3M', self::at($report, 'gateways', 'dossierfacile', 'terms', 'retention'));
+    }
+
+    /**
+     * A value deep in the report, null when a key is missing on the way.
+     *
+     * @param array<string, mixed> $report
+     */
+    private static function at(array $report, string ...$keys): mixed
+    {
+        $value = $report;
+        foreach ($keys as $key) {
+            if (!\is_array($value) || !\array_key_exists($key, $value)) {
+                return null;
+            }
+            $value = $value[$key];
+        }
+
+        return $value;
+    }
+
     /** The check is not blind: the same report, once the bundle is loaded, names the framework. */
     public function testTheBundleDoesLoadTheFramework(): void
     {

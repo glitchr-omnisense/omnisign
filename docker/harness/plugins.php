@@ -8,4 +8,6 @@ return [
     'yousign' => ['Omnisign\\Yousign\\Tests\\', 'Omnisign\\Yousign\\YousignGatewayFactory'],
     'docusign' => ['Omnisign\\Docusign\\Tests\\', 'Omnisign\\Docusign\\DocusignGatewayFactory'],
     'docuseal' => ['Omnisign\\Docuseal\\Tests\\', 'Omnisign\\Docuseal\\DocusealGatewayFactory'],
+    'stripe-identity' => ['Omnisign\\StripeIdentity\\Tests\\', 'Omnisign\\StripeIdentity\\StripeIdentityGatewayFactory'],
+    'dossierfacile' => ['Omnisign\\Dossierfacile\\Tests\\', 'Omnisign\\Dossierfacile\\DossierfacileGatewayFactory'],
 ];

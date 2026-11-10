@@ -4,9 +4,12 @@
 /**
  * Omnisign in bare PHP: no bundle, no container, no console component. The
  * registry is built by hand from the gateway packages installed, each says
- * what it offers and does, then a lease goes through each: created, sent,
- * fetched (completed), downloaded - the providers answering from their
- * packages' recorded answers. With --live, DocuSeal is asked for real
+ * what it offers and does, then a lease goes through each that signs:
+ * created, sent, fetched (completed), downloaded; an identity verification
+ * through each that verifies identities: started, fetched, its result; a
+ * tenant file through each that gives them: the consent page, the code
+ * exchanged, the file read - the providers answering from their packages'
+ * recorded answers. With --live, DocuSeal is asked for real
  * (DOCUSEAL_URL, DOCUSEAL_API_KEY, DOCUSEAL_TEMPLATE).
  *
  *   docker compose run --rm omnisign bare           # exits 1 when a class of a framework was loaded
@@ -20,6 +23,7 @@ use Omnisign\Model\Envelope;
 use Omnisign\Model\Field;
 use Omnisign\Model\File;
 use Omnisign\Model\Signer;
+use Omnisign\Model\Verification;
 use Omnisign\Registry;
 use Omnisign\Request;
 
@@ -47,7 +51,9 @@ foreach (require __DIR__.'/../config/gateways.php' as $name => $gateway) {
 }
 $registry = new Registry($factories, $config);
 
-$operations = ['create' => Request\Create::class, 'send' => Request\Send::class, 'fetch' => Request\Fetch::class, 'remind' => Request\Remind::class, 'cancel' => Request\Cancel::class, 'download' => Request\Download::class, 'signing-url' => Request\SigningUrl::class, 'notify' => Request\Notify::class];
+$operations = ['create' => Request\Create::class, 'send' => Request\Send::class, 'fetch' => Request\Fetch::class, 'remind' => Request\Remind::class, 'cancel' => Request\Cancel::class, 'download' => Request\Download::class, 'signing-url' => Request\SigningUrl::class, 'notify' => Request\Notify::class,
+    'identity-start' => Request\Identity\Start::class, 'identity-fetch' => Request\Identity\Fetch::class, 'identity-result' => Request\Identity\Result::class, 'identity-cancel' => Request\Identity\Cancel::class, 'identity-redact' => Request\Identity\Redact::class, 'identity-notify' => Request\Identity\Notify::class,
+    'tenant-file-connect-url' => Request\TenantFile\ConnectUrl::class, 'tenant-file-connect' => Request\TenantFile\Connect::class, 'tenant-file-fetch' => Request\TenantFile\Fetch::class, 'tenant-file-notify' => Request\TenantFile\Notify::class];
 $report = ['live' => $live, 'gateways' => []];
 foreach ($registry->all() as $name => $gateway) {
     $report['gateways'][$name] = ['title' => $gateway->getTitle(), 'does' => array_keys(array_filter($operations, static fn (string $r) => $gateway->supports($r)))] + $gateway->capabilities()->toArray();
@@ -63,6 +69,9 @@ $lease = new Envelope(
     key: 'lease-42',
 );
 foreach ($registry->all() as $name => $gateway) {
+    if (!$gateway->supports(Request\Create::class)) {
+        continue;
+    }
     $envelope = 'docuseal' === $name ? new Envelope($lease->title, signers: $lease->signers, embedded: true, template: getenv('DOCUSEAL_TEMPLATE') ?: '1', key: 'tenant') : $lease;
     $created = $gateway->create($envelope);
     $sent = $gateway->send($created);
@@ -73,6 +82,34 @@ foreach ($registry->all() as $name => $gateway) {
         $row['download'] = [count($download->documents), substr($download->documents[0]->content ?? '', 0, 8), null !== $download->evidence];
     }
     $report['runs'][$name] = $row;
+}
+
+foreach ($registry->all() as $name => $gateway) {
+    if (!$gateway->supports(Request\Identity\Start::class)) {
+        continue;
+    }
+    $identity = $registry->identity($name);
+    $started = $identity->startVerification(new Verification(email: 'camille@erable.example', returnUrl: 'https://solstay.example/bookings/42/identity', key: 'booking-42'));
+    $fetched = $identity->fetchVerification($started);
+    $result = $identity->verificationResult($fetched);
+    $report['identity'][$name] = [
+        'started' => [$started->reference, $started->status->value, null !== $started->url],
+        'fetched' => $fetched->status->value,
+        'result' => [$result->status->value, array_map(static fn ($c) => [$c->kind->value, $c->passed], $result->checks), $result->documentType?->value, null !== $result->person],
+    ];
+}
+foreach ($registry->all() as $name => $gateway) {
+    if (!$gateway->supports(Request\TenantFile\Connect::class)) {
+        continue;
+    }
+    $files = $registry->tenantFiles($name);
+    $file = $files->connectTenantFile('code', 'https://meyers.example/candidature/dossierfacile');
+    $report['tenant_files'][$name] = [
+        'connect_url' => parse_url($files->tenantFileConnectUrl('https://meyers.example/candidature/dossierfacile', 'state'), PHP_URL_HOST),
+        'file' => [$file->reference, $file->status->value, count($file->tenants()), count($file->guarantors()), $file->monthlyIncome()],
+        'kept_until' => $file->keepUntil?->format(DATE_ATOM),
+        'fetched' => $files->fetchTenantFile((string) $file->tenant)->status->value,
+    ];
 }
 
 // What PHP loaded to get there: the proof that no framework was needed.
@@ -89,11 +126,17 @@ if (in_array('--json', $argv, true)) {
 
 echo 'Omnisign in bare PHP: the registry built by hand, no bundle, no container; ', $live ? 'DocuSeal for real, the others recorded' : 'the providers\' recorded answers', ".\n\n";
 foreach ($report['gateways'] as $name => $g) {
-    printf("  %-9s %s: levels %s; in the page %s; third party %s; does %s\n", $name, $g['title'], implode(', ', $g['levels']), $g['embedded'] ? 'yes' : 'no', $g['thirdParty'] ? 'yes' : 'no', implode(' ', $g['does']));
+    printf("  %-9s %s: %s; levels %s; in the page %s; third party %s; does %s\n", $name, $g['title'], implode(', ', $g['contracts']), implode(', ', $g['levels']) ?: 'none', $g['embedded'] ? 'yes' : 'no', $g['thirdParty'] ? 'yes' : 'no', implode(' ', $g['does']));
 }
 echo "\n";
 foreach ($report['runs'] ?? [] as $name => $r) {
     printf("  %-9s created %s (%s), sent: %s, fetched: %s%s\n", $name, $r['created'][0], $r['created'][1], $r['sent'], $r['fetched'], isset($r['download']) ? sprintf('; downloaded %d document(s) (%s), evidence %s', $r['download'][0], trim($r['download'][1]), $r['download'][2] ? 'yes' : 'no') : '');
+}
+foreach ($report['identity'] ?? [] as $name => $r) {
+    printf("  %-9s verification %s (%s), fetched: %s; result %s, checks %s\n", $name, $r['started'][0], $r['started'][1], $r['fetched'], $r['result'][0], implode(', ', array_map(static fn ($c) => $c[0].' '.($c[1] ? 'passed' : 'failed'), $r['result'][1])));
+}
+foreach ($report['tenant_files'] ?? [] as $name => $r) {
+    printf("  %-9s consent at %s; file %s (%s): %d tenant(s), %d guarantor(s), %d EUR a month; kept until %s; fetched again: %s\n", $name, $r['connect_url'], $r['file'][0], $r['file'][1], $r['file'][2], $r['file'][3], $r['file'][4], $r['kept_until'], $r['fetched']);
 }
 echo "\nLoaded from Symfony: ", implode(', ', $symfony) ?: 'nothing', "\n";
 echo 'Classes of a framework (DependencyInjection, Config, HttpKernel, HttpFoundation, a bundle or bridge, Doctrine, Twig): ', $framework ? implode(', ', $framework) : 'none', "\n";

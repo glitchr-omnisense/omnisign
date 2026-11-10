@@ -3,6 +3,8 @@
 namespace Omnisign;
 
 use Omnisign\Exception\InvalidConfigException;
+use Omnisign\Exception\NotSupportedException;
+use Omnisign\Model\Capabilities;
 
 /**
  * The application's gateways by name, each built once from its factory and
@@ -90,5 +92,33 @@ final class Registry
     public function factories(): array
     {
         return array_keys($this->factories);
+    }
+
+    /**
+     * A gateway by name, as the identity-check contract: NotSupportedException
+     * when it does not keep it (its capabilities say so).
+     */
+    public function identity(string $name): IdentityCheckInterface
+    {
+        $gateway = $this->get($name);
+        if (!$gateway instanceof IdentityCheckInterface || !$gateway->capabilities()->keeps(Capabilities::IDENTITY_CHECK)) {
+            throw new NotSupportedException(\sprintf('The "%s" gateway does not verify identities.', $name));
+        }
+
+        return $gateway;
+    }
+
+    /**
+     * A gateway by name, as the tenant-file contract: NotSupportedException
+     * when it does not keep it.
+     */
+    public function tenantFiles(string $name): TenantFileInterface
+    {
+        $gateway = $this->get($name);
+        if (!$gateway instanceof TenantFileInterface || !$gateway->capabilities()->keeps(Capabilities::TENANT_FILE)) {
+            throw new NotSupportedException(\sprintf('The "%s" gateway gives no tenant files.', $name));
+        }
+
+        return $gateway;
     }
 }

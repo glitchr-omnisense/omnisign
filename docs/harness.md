@@ -16,9 +16,10 @@ docker compose run --rm omnisign bare
 | Command | |
 |---|---|
 | `gateways` | the gateways installed and configured, what each offers and does - nothing called |
-| `bare` | plain PHP: the registry built by hand, a lease signed through each gateway, what PHP loaded |
+| `bare` | plain PHP: the registry built by hand, a lease signed through each gateway that signs, an identity verified through each that verifies identities, a tenant file obtained through each that gives them, what PHP loaded |
 | `bare --live` | the same, DocuSeal for real (`DOCUSEAL_URL`, `DOCUSEAL_API_KEY`, `DOCUSEAL_TEMPLATE`) |
 | `bare --json` | the same, whole: every class and file loaded |
+| `phpstan` | PHPStan at level max on the core and on each provider's checkout that has a `phpstan.neon` (since 1.1) |
 | `test` | every package's tests |
 
 ## Bare: no bundle, no container

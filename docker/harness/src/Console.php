@@ -18,7 +18,9 @@ use Symfony\Component\HttpClient\HttpClient;
  */
 final class Console
 {
-    private const OPERATIONS = ['create' => Request\Create::class, 'send' => Request\Send::class, 'fetch' => Request\Fetch::class, 'remind' => Request\Remind::class, 'cancel' => Request\Cancel::class, 'download' => Request\Download::class, 'signing-url' => Request\SigningUrl::class, 'notify' => Request\Notify::class];
+    private const OPERATIONS = ['create' => Request\Create::class, 'send' => Request\Send::class, 'fetch' => Request\Fetch::class, 'remind' => Request\Remind::class, 'cancel' => Request\Cancel::class, 'download' => Request\Download::class, 'signing-url' => Request\SigningUrl::class, 'notify' => Request\Notify::class,
+        'identity-start' => Request\Identity\Start::class, 'identity-fetch' => Request\Identity\Fetch::class, 'identity-result' => Request\Identity\Result::class, 'identity-cancel' => Request\Identity\Cancel::class, 'identity-redact' => Request\Identity\Redact::class, 'identity-notify' => Request\Identity\Notify::class,
+        'tenant-file-connect-url' => Request\TenantFile\ConnectUrl::class, 'tenant-file-connect' => Request\TenantFile\Connect::class, 'tenant-file-fetch' => Request\TenantFile\Fetch::class, 'tenant-file-notify' => Request\TenantFile\Notify::class];
 
     public static function create(): Application
     {
@@ -53,7 +55,7 @@ final class Console
             }
             $gateway = $registry->get($name);
             $c = $gateway->capabilities();
-            $table->addRow([$name, '<info>yes</info>', ($m = $missing($g)) ? '<comment>example (needs '.implode(', ', $m).')</comment>' : '<info>.env</info>', implode(', ', array_map(static fn ($l) => $l->value, $c->levels)), $c->embedded ? 'yes' : 'no', $c->thirdParty ? 'yes' : 'no', implode(' ', array_keys(array_filter(self::OPERATIONS, static fn (string $r) => $gateway->supports($r))))]);
+            $table->addRow([$name, '<info>yes</info>', ($m = $missing($g)) ? '<comment>example (needs '.implode(', ', $m).')</comment>' : '<info>.env</info>', implode(', ', array_map(static fn ($l) => $l->value, $c->levels)) ?: implode(', ', $c->contracts), $c->embedded ? 'yes' : 'no', $c->thirdParty ? 'yes' : 'no', implode(' ', array_keys(array_filter(self::OPERATIONS, static fn (string $r) => $gateway->supports($r))))]);
         }
         $table->render();
 

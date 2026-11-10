@@ -8,11 +8,20 @@ use Omnisign\Exception\ProviderException;
 use Omnisign\Model\Capabilities;
 use Omnisign\Model\Download;
 use Omnisign\Model\Envelope;
+use Omnisign\Model\IdentityNotification;
 use Omnisign\Model\Notification;
 use Omnisign\Model\SigningUrl;
+use Omnisign\Model\TenantFile;
+use Omnisign\Model\TenantFileNotification;
+use Omnisign\Model\Verification;
+use Omnisign\Model\VerificationResult;
 
-/** A gateway's actions behind one door: the first action supporting a request answers it. */
-final class Gateway implements GatewayInterface
+/**
+ * A gateway's actions behind one door: the first action supporting a
+ * request answers it. Since 1.1 the door has the identity-check and
+ * tenant-file contracts too; a gateway answers those its actions support.
+ */
+final class Gateway implements GatewayInterface, IdentityCheckInterface, TenantFileInterface
 {
     /** @param ActionInterface[] $actions */
     public function __construct(
@@ -104,5 +113,55 @@ final class Gateway implements GatewayInterface
     public function notify(string $body, array $headers = []): Notification
     {
         return $this->execute(new Request\Notify($body, $headers))->getNotification();
+    }
+
+    public function startVerification(Verification $verification): Verification
+    {
+        return $this->execute(new Request\Identity\Start($verification))->getVerification() ?? throw new ProviderException($this->name, 'No verification answered.');
+    }
+
+    public function fetchVerification(Verification $verification): Verification
+    {
+        return $this->execute(new Request\Identity\Fetch($verification))->getVerification() ?? throw new ProviderException($this->name, 'No verification answered.');
+    }
+
+    public function verificationResult(Verification $verification): VerificationResult
+    {
+        return $this->execute(new Request\Identity\Result($verification))->getVerificationResult() ?? throw new ProviderException($this->name, 'No result answered.');
+    }
+
+    public function cancelVerification(Verification $verification): Verification
+    {
+        return $this->execute(new Request\Identity\Cancel($verification))->getVerification() ?? throw new ProviderException($this->name, 'No verification answered.');
+    }
+
+    public function redactVerification(Verification $verification): Verification
+    {
+        return $this->execute(new Request\Identity\Redact($verification))->getVerification() ?? throw new ProviderException($this->name, 'No verification answered.');
+    }
+
+    public function notifyIdentity(string $body, array $headers = []): IdentityNotification
+    {
+        return $this->execute(new Request\Identity\Notify($body, $headers))->getNotification() ?? throw new ProviderException($this->name, 'No notification answered.');
+    }
+
+    public function tenantFileConnectUrl(string $redirectUri, string $state): string
+    {
+        return $this->execute(new Request\TenantFile\ConnectUrl($redirectUri, $state))->getUrl() ?? throw new ProviderException($this->name, 'No URL answered.');
+    }
+
+    public function connectTenantFile(string $code, string $redirectUri): TenantFile
+    {
+        return $this->execute(new Request\TenantFile\Connect($code, $redirectUri))->getTenantFile() ?? throw new ProviderException($this->name, 'No file answered.');
+    }
+
+    public function fetchTenantFile(string $tenant): TenantFile
+    {
+        return $this->execute(new Request\TenantFile\Fetch($tenant))->getTenantFile() ?? throw new ProviderException($this->name, 'No file answered.');
+    }
+
+    public function notifyTenantFile(string $body, array $headers = []): TenantFileNotification
+    {
+        return $this->execute(new Request\TenantFile\Notify($body, $headers))->getNotification() ?? throw new ProviderException($this->name, 'No notification answered.');
     }
 }
