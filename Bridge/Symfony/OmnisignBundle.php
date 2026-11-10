@@ -9,6 +9,7 @@ use Omnisign\StripeIdentity\StripeIdentityGatewayFactory;
 use Omnisign\Yousign\YousignGatewayFactory;
 use Omnisign\GatewayFactoryInterface;
 use Omnisign\GatewayInterface;
+use Omnisign\Http\NoRetry;
 use Omnisign\IdentityCheckInterface;
 use Omnisign\Registry;
 use Omnisign\TenantFileInterface;
@@ -16,7 +17,9 @@ use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
+use function Symfony\Component\DependencyInjection\Loader\Configurator\inline_service;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 
@@ -46,7 +49,8 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_it
  * Nothing is built, nor checked, when the container compiles: a gateway is
  * built the first time it is asked for, and an option left empty only shows
  * then (InvalidConfigException). A factory is autowired, the application's
- * http_client given to it when it has one. An application's own factories
+ * http_client given to it when it has one, with its retries off
+ * (Omnisign\Http\NoRetry: an envelope is never sent twice by retry_failed). An application's own factories
  * (a GatewayFactoryInterface) are registered too, autoconfigured.
  *
  * Beside "options", a gateway takes "policy" (the site's tightening of the
@@ -92,7 +96,7 @@ final class OmnisignBundle extends AbstractBundle
                 $definition = $services->set($factory)->autowire()->tag('omnisign.gateway_factory');
                 foreach ((new \ReflectionClass($factory))->getConstructor()?->getParameters() ?? [] as $parameter) {
                     if ('http' === $parameter->getName()) {
-                        $definition->arg('$http', service('http_client')->nullOnInvalid());
+                        $definition->arg('$http', inline_service(HttpClientInterface::class)->factory([NoRetry::class, 'of'])->args([service('http_client')->nullOnInvalid()]));
                     }
                 }
             }

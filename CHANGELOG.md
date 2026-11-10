@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Writes sent once: the Symfony bundle gives each gateway factory the application's `http_client`
+  with its retries off (`Http\NoRetry`, over omnisense/contracts' `Http\NoRetry`, which
+  omnisense/contracts 1568f2c brings; with an older kernel the client is kept as given), so
+  Symfony's `RetryableHttpClient` (`retry_failed`) never sends an envelope, a verification or a
+  cancellation twice. A `MockHttpClient` is kept as given. docs/symfony.md.
+
 ### Added
 
 - Two contracts beside the signature's, for two more trust services: `IdentityCheckInterface`

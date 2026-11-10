@@ -54,7 +54,11 @@ container compiles (`The path "omnisign.gateways.x.factory" cannot contain an em
 Every `omnisign/*` package installed registers its factory, **autowired**: the bundle knows
 `Omnisign\Yousign\YousignGatewayFactory`, `Omnisign\Docusign\DocusignGatewayFactory` and
 `Omnisign\Docuseal\DocusealGatewayFactory`, registers those whose class exists, and gives each the
-application's `http_client` (null when it has none: the factory makes its own client).
+application's `http_client` (null when it has none: the factory makes its own client), with its
+retries off (`Omnisign\Http\NoRetry`, over omnisense/contracts' `Http\NoRetry`): Symfony's
+`framework.http_client.retry_failed` would send an envelope, a verification or a cancellation
+again on a 429, 502 or 503. A `MockHttpClient` is kept as given. A factory built by hand is given
+`NoRetry::of($http)` by its caller.
 
 | Service id | Class | Autowiring | |
 |---|---|---|---|

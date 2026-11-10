@@ -11,6 +11,9 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
+use Symfony\Component\HttpClient\Retry\GenericRetryStrategy;
+use Symfony\Component\HttpClient\RetryableHttpClient;
 
 final class OmnisignBundleTest extends TestCase
 {
@@ -51,6 +54,35 @@ final class OmnisignBundleTest extends TestCase
         self::assertInstanceOf(Registry::class, $registry);
         self::assertContains('docuseal', $registry->factories());
         self::assertFalse($registry->get('platform')->capabilities()->thirdParty);
+    }
+
+    /** The application's http_client with retry_failed on: an envelope answered 503 is sent once. */
+    public function testAnEnvelopeIsSentOnceThroughTheApplicationsRetryingClient(): void
+    {
+        if (!class_exists(\Omnisign\Docuseal\DocusealGatewayFactory::class) || !class_exists(\Omnisense\Contracts\Http\NoRetry::class)) {
+            self::markTestSkipped('omnisign/docuseal, or omnisense/contracts with Http\\NoRetry, is not installed.');
+        }
+        $sent = [];
+        $transport = new MockHttpClient(static function (string $method, string $url) use (&$sent): MockResponse {
+            $sent[] = $method.' '.$url;
+
+            return new MockResponse('{"error":"unavailable"}', ['http_code' => 503]);
+        });
+        $container = new ContainerBuilder();
+        $container->register('http_client', RetryableHttpClient::class)->setSynthetic(true);
+        $container->registerExtension(self::extension());
+        $container->loadFromExtension('omnisign', ['gateways' => ['platform' => ['factory' => 'docuseal', 'options' => ['url' => 'https://sign.example.org/api', 'api_key' => 'k']]]]);
+        $container->compile();
+        $container->set('http_client', new RetryableHttpClient($transport, new GenericRetryStrategy(GenericRetryStrategy::DEFAULT_RETRY_STATUS_CODES, 0), 3));
+
+        $registry = $container->get(Registry::class);
+        self::assertInstanceOf(Registry::class, $registry);
+        try {
+            $registry->get('platform')->create(new Envelope('Bail', signers: [new \Omnisign\Model\Signer('tenant', 'Camille Érable', 'camille@erable.example')], template: '1'));
+            self::fail('a 503');
+        } catch (\Omnisign\Exception\OmnisignException) {
+        }
+        self::assertCount(1, $sent, 'the 503 was not retried by the client');
     }
 
     private static function extension(): ExtensionInterface
