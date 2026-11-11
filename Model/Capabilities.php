@@ -16,6 +16,12 @@ use Omnisense\Contracts\Provider\CapabilitiesInterface;
  * ($identityDocuments, $selfie, $liveness) and the provider's own rules
  * ($terms). A gateway built before 1.1 keeps the signature only.
  *
+ * Since 1.2, $statements: the statements a signer types or acknowledges
+ * (Field::$statement) the provider carries, one StatementLimit per mode,
+ * with its documented limit - fits() says beforehand whether a statement
+ * goes in one field, so that the application chooses its fallback (several
+ * fields, an acknowledged statement) rather than failing at send time.
+ *
  * Its usage policy (policy()) is omnisense/contracts' UsagePolicy: given
  * ($policy, read from the provider's policy.json), or made of $terms
  * (Terms::policy()), or nothing known. $terms stays: given, or read from the
@@ -41,6 +47,7 @@ final readonly class Capabilities implements CapabilitiesInterface
      * @param bool               $liveness          its verifications check that a live person is there
      * @param Terms|null         $terms             the provider's own rules, in words; read from $policy when null and it is given
      * @param UsagePolicy|null   $policy            its usage policy; made of $terms when null
+     * @param list<StatementLimit> $statements      the statements it carries, one per mode (since 1.2)
      */
     public function __construct(
         public array $levels = [Level::SIMPLE],
@@ -56,6 +63,7 @@ final readonly class Capabilities implements CapabilitiesInterface
         public bool $liveness = false,
         ?Terms $terms = null,
         private ?UsagePolicy $policy = null,
+        public array $statements = [],
     ) {
         $this->terms = $terms ?? (null === $policy ? null : Terms::fromPolicy($policy));
     }
@@ -83,6 +91,24 @@ final readonly class Capabilities implements CapabilitiesInterface
         return \in_array($level, $this->levels, true);
     }
 
+    /** What it carries of a statement in this mode; null: it does not carry one so. */
+    public function statement(StatementMode $mode = StatementMode::TYPED): ?StatementLimit
+    {
+        foreach ($this->statements as $limit) {
+            if ($limit->mode === $mode) {
+                return $limit;
+            }
+        }
+
+        return null;
+    }
+
+    /** Whether this statement goes in one field of this mode: false when the mode is not carried. */
+    public function fits(string $statement, StatementMode $mode = StatementMode::TYPED): bool
+    {
+        return $this->statement($mode)?->fits($statement) ?? false;
+    }
+
     /** @return array<string, mixed> */
     public function toArray(): array
     {
@@ -99,6 +125,7 @@ final readonly class Capabilities implements CapabilitiesInterface
             'contracts' => $this->contracts,
             'selfie' => $this->selfie,
             'liveness' => $this->liveness,
+            'statements' => array_map(static fn (StatementLimit $s) => $s->toArray(), $this->statements),
             'policy' => $this->policy()->toArray(),
         ];
     }

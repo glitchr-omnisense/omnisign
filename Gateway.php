@@ -3,6 +3,7 @@
 namespace Omnisign;
 
 use Omnisign\Action\ActionInterface;
+use Omnisign\Exception\InvalidConfigException;
 use Omnisign\Exception\NotSupportedException;
 use Omnisign\Exception\ProviderException;
 use Omnisign\Model\Capabilities;
@@ -121,6 +122,9 @@ final class Gateway implements GatewayInterface, IdentityCheckInterface, TenantF
 
     public function execute(Request\Request $request): Request\Request
     {
+        if ($request instanceof Request\Create) {
+            $this->checkStatements($request->envelope);
+        }
         foreach ($this->actions as $action) {
             if ($action->supports($request)) {
                 $operation = null === $this->guard ? null : self::operation($request);
@@ -228,5 +232,22 @@ final class Gateway implements GatewayInterface, IdentityCheckInterface, TenantF
     public function notifyTenantFile(string $body, array $headers = []): TenantFileNotification
     {
         return $this->execute(new Request\TenantFile\Notify($body, $headers))->getNotification() ?? throw new ProviderException($this->name, 'No notification answered.');
+    }
+
+    /** A statement the provider cannot carry is refused before any call. */
+    private function checkStatements(Envelope $envelope): void
+    {
+        foreach ($envelope->fields as $field) {
+            if (null === $field->statement || null === ($mode = $field->mode())) {
+                continue;
+            }
+            $limit = $this->capabilities->statement($mode);
+            if (null === $limit) {
+                throw new InvalidConfigException(\sprintf('The "%s" gateway carries no %s statement: choose another mode, or put the statement in the document.', $this->name, $mode->value));
+            }
+            if (!$limit->fits($field->statement)) {
+                throw new InvalidConfigException(\sprintf('A %s statement of %d %s does not fit in one "%s" field (%d at most): split it into several fields, or acknowledge it.', $mode->value, $limit->length($field->statement), $limit->unit, $this->name, $limit->maxLength));
+            }
+        }
     }
 }

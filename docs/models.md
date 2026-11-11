@@ -71,6 +71,55 @@ unit), `width`, `height`, `anchor` (a text of the document the provider looks fo
 provider that cannot place a type refuses the envelope. `FieldType` values: `signature`,
 `initials`, `date`, `text`, `mention`.
 
+`MENTION` is not the same thing everywhere: Yousign writes the mention itself when the signer signs
+(255 characters at most) - the signer does not type it; DocuSign and DocuSeal ask the signer to type
+it. For a statement the signer must write themselves, use a statement (below).
+
+Since 1.2:
+
+- `maxLength`: the characters a signer may type in a `TEXT` field (Yousign `max_length`, DocuSign
+  `maxLength`); the provider's default (Yousign 255) when null.
+- `statement` and `statementMode`: a statement the signer **types** (`StatementMode::TYPED`, the
+  default) or **acknowledges** (`StatementMode::ACKNOWLEDGED`: shown on the document, accepted by
+  signing). `Field::forStatement($signer, $document, $text, $mode, page, x, y, width, height,
+  label)` builds one; `mode()` says which.
+
+### Statements: ask before sending
+
+Each gateway declares what it carries, per mode, with its documented limit -
+`Capabilities::$statements`, a `StatementLimit` per mode (`maxLength` in `characters` or `bytes`,
+null when the provider states none, and its `source`):
+
+| Provider | Typed | Acknowledged |
+|---|---|---|
+| Yousign | a signer's `text` field: the statement as its `instruction`, the label as its `question` (255), `max_length` up to **32767 characters** | a document's `read_only_text`, **5000 characters** |
+| DocuSign | a `textTabs` tab: the statement as its `tooltip`, its value **4000 bytes** (UTF-8: an "é" is two) | not carried |
+| DocuSeal | a `text` field, the statement as its `description` (Markdown): no limit stated | a required `checkbox`, the statement as its `description`: no limit stated |
+
+(Yousign's API v3 OpenAPI, DocuSign's eSignature v2.1 OpenAPI and DocuSeal's OpenAPI, read
+2026-11-11; the providers' docs give the sources.)
+
+```php
+use Omnisign\Model\Field;
+use Omnisign\Model\StatementMode;
+
+$capabilities = $gateway->capabilities();
+if ($capabilities->fits($mention, StatementMode::TYPED)) {
+    $fields[] = Field::forStatement('surety', 'deed', $mention, page: 4, x: 60, y: 300, label: 'Mention de la caution');
+} else {
+    // the application's fallback: several fields, one a sentence (each must fit), or the statement
+    // printed in the document and acknowledged (fits($mention, StatementMode::ACKNOWLEDGED))
+}
+```
+
+A gateway refuses, **before any call**, an envelope with a statement its provider cannot carry
+(`InvalidConfigException`: a mode it does not carry, or a statement longer than its limit).
+
+Whether a typed field in a simple electronic signature satisfies a rule of form (Code civil, art.
+2297 for a guarantor's handwritten mention, art. 1174 for a mention written by the party) is not
+the family's question: it is the application's lawyer's. The family says what each provider can
+carry.
+
 ## SignerState
 
 `key`, `reference` (the provider's id), `status` (`SignerStatus::WAITING`, `NOTIFIED`, `OPENED`,

@@ -12,6 +12,13 @@
 
 ### Added
 
+- 1.2, from omnibase/estate's guarantor's deed (2026-11-11): statements a signer types or
+  acknowledges. `Model\StatementMode` (`TYPED`, `ACKNOWLEDGED`), `Model\StatementLimit` (a
+  provider's documented limit, in characters or bytes, and its source), `Capabilities::$statements`,
+  `statement()`, `fits()`; `Field::$maxLength`, `$statement`, `$statementMode`,
+  `Field::forStatement()`, `mode()`. The gateway refuses, before any call, a statement its provider
+  cannot carry. `FieldType::MENTION`'s docblock says Yousign writes its mention, the signer does not.
+
 - Two contracts beside the signature's, for two more trust services: `IdentityCheckInterface`
   (`startVerification()`, `fetchVerification()`, `verificationResult()`, `cancelVerification()`,
   `redactVerification()`, `notifyIdentity()`; requests `Request\Identity\*`) and
