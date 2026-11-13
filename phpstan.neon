@@ -11,3 +11,10 @@ parameters:
         - vendor (?)
         - docker (?)
         - Tests/Fixtures (?)
+    ignoreErrors:
+        # The gateway packages are optional: the bundle lists those it knows and registers the ones
+        # installed (class_exists). The package's CI analyses it with omnisign/docuseal only.
+        -
+            identifier: class.notFound
+            path: Bridge/Symfony/OmnisignBundle.php
+            reportUnmatched: false

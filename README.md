@@ -63,12 +63,29 @@ composer require omnisense/omnisign omnisign/docuseal
 ```
 
 ```php
-$registry = new Registry([new DocusealGatewayFactory()], [
-    'contracts' => ['factory' => 'docuseal', 'options' => ['url' => 'https://sign.example.org/api', 'api_key' => getenv('DOCUSEAL_API_KEY')]],
+require __DIR__.'/vendor/autoload.php';
+
+use Omnisign\Docuseal\DocusealGatewayFactory;
+use Omnisign\Model\{Envelope, Signer};
+use Omnisign\Registry;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
+
+// DocuSeal's answer to the creation, recorded: with an instance of your own, drop $http (and give a real key).
+$http = new MockHttpClient(new MockResponse('[{"id":11,"submission_id":4,"external_id":"tenant","status":"awaiting","slug":"abc"}]'));
+$registry = new Registry([new DocusealGatewayFactory($http)], [
+    'contracts' => ['factory' => 'docuseal', 'options' => ['url' => 'https://sign.example.org/api', 'api_key' => getenv('DOCUSEAL_API_KEY') ?: 'not-a-real-key']],
 ]);
+$gateway = $registry->get('contracts');
+$envelope = $gateway->create(new Envelope('Bail', signers: [new Signer('tenant', 'Camille Érable', 'camille@erable.example')], embedded: true, template: '1'));
+echo $envelope->reference, ' ', $envelope->status->value, "\n";      // 4 sent
+echo $gateway->signingUrl($envelope, 'tenant')->url, "\n";          // https://sign.example.org/s/abc
 ```
 
-No bundle, no container: a factory per gateway package, the registry built by hand.
+Every gateway needs an account or an instance of its own: DocuSeal an instance (self-hosted, open
+source, or docuseal.com) and its API key, Yousign and DocuSign an account, Stripe Identity a Stripe
+account, DossierFacile a partner account. The call above runs without one, on DocuSeal's answer
+recorded. No bundle, no container: a factory per gateway package, the registry built by hand.
 
 ## Symfony
 

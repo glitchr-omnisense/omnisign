@@ -59,8 +59,8 @@ final class OmnisignBundleTest extends TestCase
     /** The application's http_client with retry_failed on: an envelope answered 503 is sent once. */
     public function testAnEnvelopeIsSentOnceThroughTheApplicationsRetryingClient(): void
     {
-        if (!class_exists(\Omnisign\Docuseal\DocusealGatewayFactory::class) || !class_exists(\Omnisense\Contracts\Http\NoRetry::class)) {
-            self::markTestSkipped('omnisign/docuseal, or omnisense/contracts with Http\\NoRetry, is not installed.');
+        if (!class_exists(\Omnisign\Docuseal\DocusealGatewayFactory::class)) {
+            self::markTestSkipped('omnisign/docuseal is not installed.');
         }
         $sent = [];
         $transport = new MockHttpClient(static function (string $method, string $url) use (&$sent): MockResponse {

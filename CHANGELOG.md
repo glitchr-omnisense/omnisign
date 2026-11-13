@@ -5,8 +5,7 @@
 ### Fixed
 
 - Writes sent once: the Symfony bundle gives each gateway factory the application's `http_client`
-  with its retries off (`Http\NoRetry`, over omnisense/contracts' `Http\NoRetry`, which
-  omnisense/contracts 1568f2c brings; with an older kernel the client is kept as given), so
+  with its retries off (`Http\NoRetry`, over omnisense/contracts' `Http\NoRetry`), so
   Symfony's `RetryableHttpClient` (`retry_failed`) never sends an envelope, a verification or a
   cancellation twice. A `MockHttpClient` is kept as given. docs/symfony.md.
 
@@ -59,6 +58,8 @@
 
 ### Changed
 
+- Requires `omnisense/contracts: ^1.0`: stable versions, so `composer require omnisense/omnisign` installs in a project at the default minimum-stability. `extra.branch-alias` names 1.x (`1.x-dev`); the CI (`.github/workflows/ci.yml`, glitchr-studio/ci's shared workflow) and the release on a tag (`release.yml`).
+- The package passes its CI alone: require-dev gains `omnisign/docuseal` (the bare check and the bundle's tests sign through it) and `phpstan/phpstan`; PHPStan leaves the bundle's list of the gateway packages it knows, optional, to `class_exists()`. `Http\NoRetry` no longer checks that omnisense/contracts has its `Http\NoRetry` (1.0 has). The README's plain-PHP block is a whole first call, on DocuSeal's answer recorded.
 - PHPStan at level max with an empty baseline: the 79 findings of the code before 1.1 are fixed.
   `Gateway`'s envelope methods (`create()` ... `notify()`) throw the gateway's `ProviderException`
   where an action answered no model, rather than returning null from a method typed not to.

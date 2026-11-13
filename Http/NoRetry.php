@@ -13,8 +13,6 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  * never sends an envelope, a verification or a cancellation twice. Null
  * (no http_client service) stays null: the factory makes its own client,
  * which retries nothing. A test client (MockHttpClient) is kept as given.
- * Http\NoRetry came with omnisense/contracts 1568f2c: with an older kernel
- * the client is kept as given.
  *
  * A factory built by hand is given NoRetry::of($http) by its caller.
  */
@@ -22,6 +20,6 @@ final class NoRetry
 {
     public static function of(?HttpClientInterface $http): ?HttpClientInterface
     {
-        return null !== $http && class_exists(KernelNoRetry::class) ? KernelNoRetry::of($http) : $http;
+        return null === $http ? null : KernelNoRetry::of($http);
     }
 }
