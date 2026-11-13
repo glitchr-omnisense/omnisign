@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-11-13
+
 ### Fixed
 
 - Writes sent once: the Symfony bundle gives each gateway factory the application's `http_client`
