@@ -65,7 +65,7 @@ $lease = new Envelope(
     [new Signer('tenant', 'Camille Érable', 'camille@erable.example')],
     [new Field('tenant', 'lease', page: 1, x: 72, y: 600)],
     embedded: true,
-    redirectUrl: 'https://meyers.example/leases/42/signed',
+    redirectUrl: 'https://sci-exemple.example/leases/42/signed',
     key: 'lease-42',
 );
 foreach ($registry->all() as $name => $gateway) {
@@ -103,9 +103,9 @@ foreach ($registry->all() as $name => $gateway) {
         continue;
     }
     $files = $registry->tenantFiles($name);
-    $file = $files->connectTenantFile('code', 'https://meyers.example/candidature/dossierfacile');
+    $file = $files->connectTenantFile('code', 'https://sci-exemple.example/candidature/dossierfacile');
     $report['tenant_files'][$name] = [
-        'connect_url' => parse_url($files->tenantFileConnectUrl('https://meyers.example/candidature/dossierfacile', 'state'), PHP_URL_HOST),
+        'connect_url' => parse_url($files->tenantFileConnectUrl('https://sci-exemple.example/candidature/dossierfacile', 'state'), PHP_URL_HOST),
         'file' => [$file->reference, $file->status->value, count($file->tenants()), count($file->guarantors()), $file->monthlyIncome()],
         'kept_until' => $file->keepUntil?->format(DATE_ATOM),
         'fetched' => $files->fetchTenantFile((string) $file->tenant)->status->value,

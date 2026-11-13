@@ -20,7 +20,7 @@ final class ModelTest extends TestCase
         self::assertSame(['Camille Anne', 'Érable'], (new Signer('t', 'Camille Anne Érable', 'c@example.org'))->names());
         self::assertSame(['Madonna', 'Madonna'], (new Signer('t', 'Madonna', 'm@example.org'))->names());
 
-        $envelope = new Envelope('Bail', signers: [new Signer('landlord', 'Marco Meyer', 'm@example.org'), new Signer('tenant', 'Camille Érable', 'c@example.org')], fields: [new Field('tenant', 'lease'), new Field('landlord', 'lease'), new Field('tenant', 'annex')]);
+        $envelope = new Envelope('Bail', signers: [new Signer('landlord', 'Alex Martin', 'm@example.org'), new Signer('tenant', 'Camille Érable', 'c@example.org')], fields: [new Field('tenant', 'lease'), new Field('landlord', 'lease'), new Field('tenant', 'annex')]);
         self::assertCount(2, $envelope->fieldsOf('tenant'));
         self::assertSame('Camille Érable', $envelope->signer('tenant')->name);
         self::assertNull($envelope->state('tenant'));
